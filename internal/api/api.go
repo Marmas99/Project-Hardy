@@ -3,7 +3,7 @@ package api
 import (
 	"io/ioutil"
 	"net/http"
-	"project/hardy/internal/item"
+	"project/hardy/internal/database"
 
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
@@ -18,7 +18,7 @@ func StartServer(logger *logrus.Logger) {
 	apilogger.Info("Initiating handlers")
 	registerhandlers(myRouter)
 
-	apilogger.Info("Server listening...")
+	apilogger.Infoln("API listening...")
 	http.ListenAndServe(":3030", myRouter)
 }
 
@@ -32,5 +32,5 @@ func insertItem(writer http.ResponseWriter, request *http.Request) {
 		apilogger.Errorln("Error while reading request body")
 		panic("Stopping program")
 	}
-	item.CreateNewItem(reqData, writer)
+	database.InsertNewItem(reqData, writer, apilogger)
 }
