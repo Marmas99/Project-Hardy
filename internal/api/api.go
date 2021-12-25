@@ -15,7 +15,7 @@ func StartServer(logger *logrus.Logger) {
 	myRouter := mux.NewRouter().StrictSlash(true)
 	apilogger = logger
 
-	apilogger.Info("Initiating handlers")
+	apilogger.Infoln("Initiating handlers")
 	registerhandlers(myRouter)
 
 	apilogger.Infoln("API listening...")
@@ -24,6 +24,7 @@ func StartServer(logger *logrus.Logger) {
 
 func registerhandlers(router *mux.Router) {
 	router.HandleFunc("/insert", insertItem).Methods("POST")
+	router.HandleFunc("/delete", deleteItem).Methods("POST")
 }
 
 func insertItem(writer http.ResponseWriter, request *http.Request) {
@@ -32,5 +33,14 @@ func insertItem(writer http.ResponseWriter, request *http.Request) {
 		apilogger.Errorln("Error while reading request body")
 		panic("Stopping program")
 	}
-	database.InsertNewItem(reqData, writer, apilogger)
+	database.InsertNewItem(reqData, apilogger)
+}
+
+func deleteItem(writer http.ResponseWriter, request *http.Request) {
+	reqData, err := ioutil.ReadAll(request.Body)
+	if err != nil {
+		apilogger.Errorln("Error while reading request body")
+		panic("Stopping program")
+	}
+	database.DeleteItem(reqData, apilogger)
 }

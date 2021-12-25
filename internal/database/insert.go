@@ -3,7 +3,6 @@ package database
 import (
 	"encoding/json"
 	"fmt"
-	"net/http"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
@@ -19,13 +18,12 @@ type Item struct {
 
 const tableName = "Todo-Table"
 
-func InsertNewItem(itemData []byte, writer http.ResponseWriter, apilogger *logrus.Logger) {
+func InsertNewItem(itemData []byte, apilogger *logrus.Logger) {
 	var item Item
 
 	json.Unmarshal(itemData, &item)
 	dynamoClient := GetDynamoDbClient()
 
-	apilogger.Infoln("Marshaling new Item to be inserted")
 	marshaldItem, err := dynamodbattribute.MarshalMap(item)
 	if err != nil {
 		apilogger.Error("Error while marshaling new Item")
@@ -36,7 +34,7 @@ func InsertNewItem(itemData []byte, writer http.ResponseWriter, apilogger *logru
 		TableName: aws.String(tableName),
 	}
 
-	apilogger.Info(fmt.Sprintf("Putting item in table: %s", tableName))
+	apilogger.Infoln(fmt.Sprintf("Putting item in table: %s", tableName))
 	_, err = dynamoClient.PutItem(input)
 	if err != nil {
 		apilogger.Error(fmt.Sprintf("Error while putting item in table: %s", err.Error()))
